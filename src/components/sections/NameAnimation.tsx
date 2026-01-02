@@ -113,20 +113,7 @@ export const NameAnimation: React.FC = memo(() => {
                     {!showFinal ? (
                         <div className="min-h-[220px] sm:min-h-[260px] flex items-center justify-center mt-8">
                             <div ref={letterRef} className="text-center">
-                                {!hasStarted ? (
-                                    /* Waiting state before animation starts */
-                                    <div className="text-center opacity-50">
-                                        <div
-                                            className="font-playfair text-rose-gold/30 font-bold leading-none mb-4"
-                                            style={{ fontSize: 'clamp(5rem, 20vw, 9rem)' }}
-                                        >
-                                            A
-                                        </div>
-                                        <p className="font-montserrat text-cream/40 text-xs">
-                                            Scroll to begin...
-                                        </p>
-                                    </div>
-                                ) : currentLetter && (
+                                {currentLetter && (
                                     <>
                                         {/* Big Letter */}
                                         <div

@@ -79,7 +79,7 @@ const MEDIA_ITEMS: MediaItem[] = [
     },
 ];
 
-// Hook for individual item animations
+// Hook for individual item animations - resets when scrolling back
 const useItemAnimation = (threshold = 0.2) => {
     const ref = useRef<HTMLDivElement>(null);
     const [isVisible, setIsVisible] = useState(false);
@@ -91,13 +91,11 @@ const useItemAnimation = (threshold = 0.2) => {
         const observer = new IntersectionObserver(
             (entries) => {
                 entries.forEach((entry) => {
-                    if (entry.isIntersecting) {
-                        setIsVisible(true);
-                        observer.unobserve(element);
-                    }
+                    // Animate in when visible, reset when not visible
+                    setIsVisible(entry.isIntersecting);
                 });
             },
-            { threshold }
+            { threshold, rootMargin: '0px 0px -50px 0px' }
         );
 
         observer.observe(element);
