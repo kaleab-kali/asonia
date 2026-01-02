@@ -12,7 +12,7 @@ interface ProgressiveMediaProps {
 
 export const ProgressiveMedia: React.FC<ProgressiveMediaProps> = memo(({
     src,
-    placeholder,
+    placeholder: _placeholder,
     alt = '',
     className = '',
     type = 'image',
