@@ -19,50 +19,16 @@ const ASONIA_LETTERS: LetterData[] = [
 export const NameAnimation: React.FC = memo(() => {
     const [currentIndex, setCurrentIndex] = useState(0);
     const [showFinal, setShowFinal] = useState(false);
-    const [isVisible, setIsVisible] = useState(false);
     const letterRef = useRef<HTMLDivElement>(null);
-    const sectionRef = useRef<HTMLElement>(null);
-    const animationKey = useRef(0);
     const letters = useMemo(() => ASONIA_LETTERS, []);
 
-    // Intersection Observer - resets animation when scrolling back
     useEffect(() => {
-        const observer = new IntersectionObserver(
-            (entries) => {
-                entries.forEach((entry) => {
-                    if (entry.isIntersecting) {
-                        // Reset and start animation when entering view
-                        animationKey.current += 1;
-                        setCurrentIndex(0);
-                        setShowFinal(false);
-                        setIsVisible(true);
-                    } else {
-                        // Stop animation when leaving view
-                        setIsVisible(false);
-                    }
-                });
-            },
-            { threshold: 0.3 }
-        );
-
-        if (sectionRef.current) {
-            observer.observe(sectionRef.current);
-        }
-
-        return () => observer.disconnect();
-    }, []);
-
-    // Letter animation effect
-    useEffect(() => {
-        if (!isVisible) return;
-
         if (currentIndex >= letters.length) {
             setShowFinal(true);
             return;
         }
 
-        const currentKey = animationKey.current;
-
+        // Animate current letter in
         if (letterRef.current) {
             gsap.fromTo(letterRef.current,
                 { opacity: 0, y: 30, scale: 0.9 },
@@ -70,132 +36,108 @@ export const NameAnimation: React.FC = memo(() => {
             );
         }
 
+        // Move to next letter after delay
         const timer = setTimeout(() => {
-            // Only proceed if still the same animation cycle
-            if (animationKey.current !== currentKey) return;
-
             if (letterRef.current) {
                 gsap.to(letterRef.current, {
                     opacity: 0,
                     y: -20,
                     duration: 0.4,
                     ease: 'power2.in',
-                    onComplete: () => {
-                        if (animationKey.current === currentKey) {
-                            setCurrentIndex(prev => prev + 1);
-                        }
-                    }
+                    onComplete: () => setCurrentIndex(prev => prev + 1)
                 });
             }
         }, 1800);
 
         return () => clearTimeout(timer);
-    }, [currentIndex, letters.length, isVisible]);
+    }, [currentIndex, letters.length]);
 
     const currentLetter = letters[currentIndex];
 
     return (
-        <section ref={sectionRef} className="relative">
-            {/* Dark top section - seamless from VogueCover */}
-            <div className="bg-black pt-16 pb-20 md:pt-20 md:pb-28 px-4">
-                <div className="text-center max-w-4xl mx-auto">
-                    {/* Section Title */}
-                    <div className="flex items-center justify-center gap-4 mb-6">
-                        <div className="w-12 md:w-20 h-px bg-gradient-to-r from-transparent to-rose-gold/40"></div>
-                        <span className="text-rose-gold/60 text-xs">&#10022;</span>
-                        <div className="w-12 md:w-20 h-px bg-gradient-to-l from-transparent to-rose-gold/40"></div>
-                    </div>
-                    <span className="font-montserrat text-[10px] sm:text-xs uppercase tracking-[0.3em] text-cream/60 block">
-                        What Makes Her Special
-                    </span>
+        <section className="min-h-[70vh] flex flex-col items-center justify-center bg-gradient-to-b from-black via-elegant-black to-cream py-8 px-4 -mt-1">
+            <div className="text-center max-w-4xl mx-auto w-full">
+                {/* Section Title */}
+                <span className="font-montserrat text-[9px] sm:text-xs uppercase tracking-[0.3em] text-soft-black mb-4 block">
+                    What Makes Her Special
+                </span>
 
-                    {/* Animation Area */}
-                    {!showFinal ? (
-                        <div className="min-h-[220px] sm:min-h-[260px] flex items-center justify-center mt-8">
-                            <div ref={letterRef} className="text-center">
-                                {currentLetter && (
-                                    <>
-                                        {/* Big Letter */}
-                                        <div
-                                            className="font-playfair text-rose-gold font-bold leading-none mb-4"
-                                            style={{
-                                                fontSize: 'clamp(5rem, 20vw, 9rem)',
-                                                textShadow: '0 0 60px rgba(183, 110, 121, 0.3)'
-                                            }}
-                                        >
-                                            {currentLetter.letter}
-                                        </div>
-
-                                        {/* Meaning */}
-                                        <p className="font-playfair text-cream text-xl sm:text-2xl md:text-3xl italic mb-2">
-                                            {currentLetter.meaning}
-                                        </p>
-
-                                        {/* Compliment */}
-                                        <p className="font-montserrat text-cream/60 text-xs sm:text-sm max-w-xs mx-auto">
-                                            {currentLetter.compliment}
-                                        </p>
-
-                                        {/* Progress dots */}
-                                        <div className="flex justify-center gap-2 mt-6">
-                                            {letters.map((_, idx) => (
-                                                <div
-                                                    key={idx}
-                                                    className={`w-2 h-2 rounded-full transition-all duration-300 ${
-                                                        idx <= currentIndex
-                                                            ? 'bg-rose-gold shadow-lg shadow-rose-gold/50'
-                                                            : 'bg-cream/20'
-                                                    }`}
-                                                />
-                                            ))}
-                                        </div>
-                                    </>
-                                )}
-                            </div>
-                        </div>
-                    ) : (
-                        /* Final State - All letters with meanings */
-                        <div className="animate-[fadeIn_0.8s_ease-out] mt-8">
-                            {/* ASONIA spelled out */}
-                            <div className="flex justify-center gap-1 sm:gap-2 md:gap-3 mb-10">
-                                {letters.map((item, idx) => (
-                                    <span
-                                        key={idx}
-                                        className="font-playfair text-rose-gold font-bold"
-                                        style={{
-                                            fontSize: 'clamp(2.5rem, 10vw, 5rem)',
-                                            textShadow: '0 0 40px rgba(183, 110, 121, 0.3)'
-                                        }}
+                {/* Animation Area */}
+                {!showFinal ? (
+                    <div className="min-h-[200px] sm:min-h-[240px] flex items-center justify-center">
+                        <div ref={letterRef} className="text-center">
+                            {currentLetter && (
+                                <>
+                                    {/* Big Letter */}
+                                    <div
+                                        className="font-playfair text-rose-gold font-bold leading-none mb-3"
+                                        style={{ fontSize: 'clamp(5rem, 22vw, 10rem)' }}
                                     >
+                                        {currentLetter.letter}
+                                    </div>
+
+                                    {/* Meaning */}
+                                    <p className="font-playfair text-elegant-black text-lg sm:text-xl md:text-2xl italic mb-1">
+                                        {currentLetter.meaning}
+                                    </p>
+
+                                    {/* Compliment */}
+                                    <p className="font-montserrat text-soft-black text-xs sm:text-sm">
+                                        {currentLetter.compliment}
+                                    </p>
+
+                                    {/* Progress dots */}
+                                    <div className="flex justify-center gap-1.5 mt-4">
+                                        {letters.map((_, idx) => (
+                                            <div
+                                                key={idx}
+                                                className={`w-1.5 h-1.5 sm:w-2 sm:h-2 rounded-full transition-colors duration-300 ${idx <= currentIndex ? 'bg-rose-gold' : 'bg-rose-gold/30'
+                                                    }`}
+                                            />
+                                        ))}
+                                    </div>
+                                </>
+                            )}
+                        </div>
+                    </div>
+                ) : (
+                    /* Final State - All letters with meanings */
+                    <div className="animate-[fadeIn_0.8s_ease-out]">
+                        {/* ASONIA spelled out */}
+                        <div className="flex justify-center gap-0.5 sm:gap-1 md:gap-2 mb-6">
+                            {letters.map((item, idx) => (
+                                <span
+                                    key={idx}
+                                    className="font-playfair text-rose-gold font-bold"
+                                    style={{ fontSize: 'clamp(2rem, 9vw, 4.5rem)' }}
+                                >
+                                    {item.letter}
+                                </span>
+                            ))}
+                        </div>
+
+                        {/* All meanings grid */}
+                        <div className="grid grid-cols-2 sm:grid-cols-3 gap-3 sm:gap-4 max-w-2xl mx-auto mt-6">
+                            {letters.map((item, idx) => (
+                                <div
+                                    key={idx}
+                                    className="bg-white/50 backdrop-blur-sm rounded-lg p-3 sm:p-4 border border-rose-gold/10"
+                                >
+                                    <span className="font-playfair text-rose-gold text-xl sm:text-2xl font-bold">
                                         {item.letter}
                                     </span>
-                                ))}
-                            </div>
-
-                            {/* All meanings grid */}
-                            <div className="grid grid-cols-2 sm:grid-cols-3 gap-3 sm:gap-4 max-w-2xl mx-auto">
-                                {letters.map((item, idx) => (
-                                    <div
-                                        key={idx}
-                                        className="bg-white/5 backdrop-blur-sm rounded-lg p-4 sm:p-5 border border-rose-gold/20"
-                                    >
-                                        <span className="font-playfair text-rose-gold text-2xl sm:text-3xl font-bold">
-                                            {item.letter}
-                                        </span>
-                                        <p className="font-montserrat text-cream text-sm font-medium mt-2">
-                                            {item.meaning}
-                                        </p>
-                                        <p className="font-montserrat text-cream/50 text-[10px] sm:text-xs mt-1 leading-relaxed">
-                                            {item.compliment}
-                                        </p>
-                                    </div>
-                                ))}
-                            </div>
+                                    <p className="font-montserrat text-elegant-black text-xs sm:text-sm font-medium mt-1">
+                                        {item.meaning}
+                                    </p>
+                                    <p className="font-montserrat text-soft-black text-[9px] sm:text-[10px] mt-0.5 leading-tight">
+                                        {item.compliment}
+                                    </p>
+                                </div>
+                            ))}
                         </div>
-                    )}
-                </div>
+                    </div>
+                )}
             </div>
-
         </section>
     );
 });
