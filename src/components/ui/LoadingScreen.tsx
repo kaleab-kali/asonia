@@ -16,53 +16,46 @@ interface LoadingScreenProps {
     onComplete: () => void;
 }
 
-interface LoadProgress {
-    loaded: number;
-    total: number;
-}
-
 /**
- * Preloads a video by fetching all bytes using ReadableStream
- * This ensures the video is fully downloaded before resolving
+ * Preloads a video using XMLHttpRequest for reliable progress tracking
+ * Returns a promise that resolves when the video is fully downloaded
  */
-const preloadVideoWithFetch = async (
+const preloadVideo = (
     src: string,
     onProgress: (loaded: number, total: number) => void
 ): Promise<void> => {
-    try {
-        const response = await fetch(src);
+    return new Promise((resolve) => {
+        const xhr = new XMLHttpRequest();
+        xhr.open('GET', src, true);
+        xhr.responseType = 'blob';
 
-        if (!response.ok) {
-            throw new Error(`HTTP ${response.status}`);
-        }
-
-        const contentLength = response.headers.get('content-length');
-        const total = contentLength ? parseInt(contentLength, 10) : 0;
-
-        if (!response.body) {
-            onProgress(total, total);
-            return;
-        }
-
-        const reader = response.body.getReader();
-        let loaded = 0;
-
-        while (true) {
-            const { done, value } = await reader.read();
-
-            if (done) {
-                onProgress(total || loaded, total || loaded);
-                break;
+        xhr.onprogress = (event) => {
+            if (event.lengthComputable) {
+                onProgress(event.loaded, event.total);
             }
+        };
 
-            loaded += value.length;
-            onProgress(loaded, total || loaded);
-        }
-    } catch (error) {
-        console.warn(`Failed to preload: ${src}`, error);
-        // Resolve anyway to not block loading
-        onProgress(1, 1);
-    }
+        xhr.onload = () => {
+            if (xhr.status >= 200 && xhr.status < 300) {
+                // Video fully downloaded
+                const blob = xhr.response;
+                onProgress(blob.size, blob.size);
+                resolve();
+            } else {
+                console.warn(`Failed to load video: ${src}, status: ${xhr.status}`);
+                onProgress(1, 1);
+                resolve();
+            }
+        };
+
+        xhr.onerror = () => {
+            console.warn(`Network error loading video: ${src}`);
+            onProgress(1, 1);
+            resolve();
+        };
+
+        xhr.send();
+    });
 };
 
 export const LoadingScreen: React.FC<LoadingScreenProps> = memo(({ onComplete }) => {
@@ -70,7 +63,7 @@ export const LoadingScreen: React.FC<LoadingScreenProps> = memo(({ onComplete })
     const progressRef = useRef<HTMLDivElement>(null);
     const hasCompleted = useRef(false);
     const [progress, setProgress] = useState(0);
-    const [statusText, setStatusText] = useState('Preparing...');
+    const [statusText, setStatusText] = useState('Preparing your experience...');
 
     const animateOut = useCallback(() => {
         if (hasCompleted.current || !containerRef.current) return;
@@ -85,72 +78,69 @@ export const LoadingScreen: React.FC<LoadingScreenProps> = memo(({ onComplete })
                 ease: 'power2.inOut',
                 onComplete: onComplete
             });
-        }, 300);
+        }, 400);
     }, [onComplete]);
 
     useEffect(() => {
-        const progressMap: Record<number, LoadProgress> = {};
-        let completedCount = 0;
+        // Track progress for each video
+        const progressMap: { loaded: number; total: number }[] = ALL_VIDEOS.map(() => ({
+            loaded: 0,
+            total: 1 // Will be updated when we know the actual size
+        }));
 
-        // Initialize progress for each video
-        ALL_VIDEOS.forEach((_, i) => {
-            progressMap[i] = { loaded: 0, total: 1 };
-        });
-
-        const calculateTotalProgress = () => {
+        const updateTotalProgress = () => {
             let totalLoaded = 0;
             let totalSize = 0;
 
-            Object.values(progressMap).forEach(({ loaded, total }) => {
+            progressMap.forEach(({ loaded, total }) => {
                 totalLoaded += loaded;
                 totalSize += total;
             });
 
-            const percent = totalSize > 0 ? (totalLoaded / totalSize) * 100 : 0;
-            return Math.min(Math.round(percent), 100);
-        };
+            const percent = totalSize > 0 ? Math.round((totalLoaded / totalSize) * 100) : 0;
+            const clampedPercent = Math.min(percent, 100);
 
-        const updateUI = () => {
-            const percent = calculateTotalProgress();
-            setProgress(percent);
-
+            setProgress(clampedPercent);
             if (progressRef.current) {
-                progressRef.current.style.width = `${percent}%`;
+                progressRef.current.style.width = `${clampedPercent}%`;
             }
         };
 
         const loadAllVideos = async () => {
-            setStatusText('Loading videos...');
+            setStatusText('Loading...');
 
+            // Start all video downloads in parallel
             const promises = ALL_VIDEOS.map((src, index) =>
-                preloadVideoWithFetch(src, (loaded, total) => {
+                preloadVideo(src, (loaded, total) => {
                     progressMap[index] = { loaded, total };
-                    updateUI();
-                }).then(() => {
-                    completedCount++;
-                    setStatusText(`Loading... (${completedCount}/${ALL_VIDEOS.length})`);
+                    updateTotalProgress();
                 })
             );
 
+            // Wait for ALL videos to complete
             await Promise.all(promises);
 
+            // Ensure we show 100%
             setProgress(100);
             if (progressRef.current) {
                 progressRef.current.style.width = '100%';
             }
 
-            animateOut();
+            // Small delay to show 100% before transitioning
+            setTimeout(() => {
+                animateOut();
+            }, 200);
         };
 
         loadAllVideos();
 
-        // Fallback: max 45 seconds wait
+        // Safety fallback: max 60 seconds
         const fallback = setTimeout(() => {
             if (!hasCompleted.current) {
-                console.warn('Loading timeout - proceeding anyway');
+                console.warn('Loading timeout reached - proceeding anyway');
                 animateOut();
             }
-        }, 45000);
+        }, 60000);
 
         return () => clearTimeout(fallback);
     }, [animateOut]);
