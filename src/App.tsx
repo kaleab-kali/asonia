@@ -1,4 +1,5 @@
 import { useState, useCallback } from 'react';
+import { Analytics } from '@vercel/analytics/react';
 import { Layout } from './components/Layout';
 import { LoadingScreen } from './components/ui/LoadingScreen';
 import { VogueCover } from './components/sections/VogueCover';
@@ -31,6 +32,7 @@ function App() {
           <FinalWish />
         </Layout>
       )}
+      <Analytics />
     </>
   );
 }
