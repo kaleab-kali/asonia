@@ -1,9 +1,10 @@
 import { useRef, memo } from 'react';
 import { ProgressiveMedia } from '../ui/ProgressiveMedia';
-import coverVideo from '../../assets/2.mp4';
+import { getVideoSrc } from '../../utils/videoPreloader';
 
 export const VogueCover: React.FC = memo(() => {
     const containerRef = useRef<HTMLElement>(null);
+    const coverVideo = getVideoSrc('video2');
 
     return (
         <section

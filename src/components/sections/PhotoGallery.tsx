@@ -1,27 +1,19 @@
 import { useMemo, memo, useRef, useState, useEffect } from 'react';
 import { ProgressiveMedia } from '../ui/ProgressiveMedia';
+import { getVideoSrc } from '../../utils/videoPreloader';
 
-// Import video assets
-import video2 from '../../assets/2.mp4';
-import video3 from '../../assets/3.mp4';
-import video4 from '../../assets/4.mp4';
-import video5 from '../../assets/5.mp4';
-import video6 from '../../assets/6.mp4';
-
-interface MediaItem {
+interface MediaItemData {
     id: number;
-    src: string;
+    videoKey: 'video2' | 'video3' | 'video4' | 'video5' | 'video6';
     alt: string;
-    type: 'video';
     poem: string[];
 }
 
-const MEDIA_ITEMS: MediaItem[] = [
+const MEDIA_ITEMS_DATA: MediaItemData[] = [
     {
         id: 1,
-        src: video2,
+        videoKey: 'video2',
         alt: 'Moment 1',
-        type: 'video',
         poem: [
             "Grace flows through every step you take,",
             "A beauty time cannot forsake,",
@@ -31,9 +23,8 @@ const MEDIA_ITEMS: MediaItem[] = [
     },
     {
         id: 2,
-        src: video3,
+        videoKey: 'video3',
         alt: 'Moment 2',
-        type: 'video',
         poem: [
             "Like stars that paint the midnight sky,",
             "Your elegance will never die,",
@@ -43,9 +34,8 @@ const MEDIA_ITEMS: MediaItem[] = [
     },
     {
         id: 3,
-        src: video4,
+        videoKey: 'video4',
         alt: 'Moment 3',
-        type: 'video',
         poem: [
             "In laughter's light and gentle smile,",
             "You make each moment so worthwhile,",
@@ -55,9 +45,8 @@ const MEDIA_ITEMS: MediaItem[] = [
     },
     {
         id: 4,
-        src: video5,
+        videoKey: 'video5',
         alt: 'Moment 4',
-        type: 'video',
         poem: [
             "Through every season, rain or shine,",
             "Your inner beauty will define,",
@@ -67,9 +56,8 @@ const MEDIA_ITEMS: MediaItem[] = [
     },
     {
         id: 5,
-        src: video6,
+        videoKey: 'video6',
         alt: 'Moment 5',
-        type: 'video',
         poem: [
             "On this day, we celebrate you,",
             "Every dream and wish come true,",
@@ -78,6 +66,25 @@ const MEDIA_ITEMS: MediaItem[] = [
         ]
     },
 ];
+
+interface MediaItem {
+    id: number;
+    src: string;
+    alt: string;
+    type: 'video';
+    poem: string[];
+}
+
+// Build media items with cached video sources
+const getMediaItems = (): MediaItem[] => {
+    return MEDIA_ITEMS_DATA.map(item => ({
+        id: item.id,
+        src: getVideoSrc(item.videoKey),
+        alt: item.alt,
+        type: 'video' as const,
+        poem: item.poem
+    }));
+};
 
 // Hook for individual item animations - resets when scrolling back
 const useItemAnimation = (threshold = 0.2) => {
@@ -215,7 +222,7 @@ const GalleryItem: React.FC<{ item: MediaItem; index: number }> = memo(({ item, 
 GalleryItem.displayName = 'GalleryItem';
 
 export const PhotoGallery: React.FC = memo(() => {
-    const mediaItems = useMemo(() => MEDIA_ITEMS, []);
+    const mediaItems = useMemo(() => getMediaItems(), []);
 
     return (
         <section className="relative">
