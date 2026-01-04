@@ -63,7 +63,7 @@ export const FinalWish: React.FC = memo(() => {
                 {/* Footer */}
                 <footer className="text-center">
                     <p className="font-montserrat text-cream/40 text-[10px] md:text-xs tracking-[0.3em] uppercase mb-3">
-                        Crafted with love
+                        Crafted with Elegance
                     </p>
                     <div className="flex items-center justify-center gap-2 text-rose-gold/50">
                         <span className="w-6 h-px bg-rose-gold/30"></span>

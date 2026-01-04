@@ -8,12 +8,12 @@ interface LetterData {
 }
 
 const ASONIA_LETTERS: LetterData[] = [
-    { letter: 'A', meaning: 'Alluring', compliment: 'Your presence lights up every room' },
+    { letter: 'A', meaning: 'Authentic', compliment: 'Real energy that stands out' },
     { letter: 'S', meaning: 'Stunning', compliment: 'Natural elegance that captivates' },
     { letter: 'O', meaning: 'Original', compliment: 'Unique in every way' },
     { letter: 'N', meaning: 'Natural', compliment: 'Effortlessly sophisticated' },
     { letter: 'I', meaning: 'Inspiring', compliment: 'Your strength shines through' },
-    { letter: 'A', meaning: 'Amazing', compliment: 'A heart as beautiful as your smile' },
+    { letter: 'A', meaning: 'Amazing', compliment: 'Good vibes all around' },
 ];
 
 export const NameAnimation: React.FC = memo(() => {
@@ -106,7 +106,7 @@ export const NameAnimation: React.FC = memo(() => {
                         <div className="w-12 md:w-20 h-px bg-gradient-to-l from-transparent to-rose-gold/40"></div>
                     </div>
                     <span className="font-montserrat text-[10px] sm:text-xs uppercase tracking-[0.3em] text-cream/60 block">
-                        What Makes Her Special
+                        The Meaning Behind The Name
                     </span>
 
                     {/* Animation Area */}

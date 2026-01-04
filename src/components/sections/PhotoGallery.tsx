@@ -4,7 +4,7 @@ import { getVideoSrc } from '../../utils/videoPreloader';
 
 interface MediaItemData {
     id: number;
-    videoKey: 'video2' | 'video3' | 'video4' | 'video5' | 'video6';
+    videoKey: 'video1'|'video2' | 'video3' | 'video4' | 'video5' | 'video6' | 'video7';
     alt: string;
     poem: string[];
 }
@@ -12,57 +12,68 @@ interface MediaItemData {
 const MEDIA_ITEMS_DATA: MediaItemData[] = [
     {
         id: 1,
-        videoKey: 'video2',
+        videoKey: 'video1',
         alt: 'Moment 1',
         poem: [
-            "Grace flows through every step you take,",
-            "A beauty time cannot forsake,",
-            "In every moment, pure and true,",
-            "The world shines brighter just for you."
+            "Some people walk in with that vibe so real,",
+            "A confidence that's part of the deal,",
+            "No need to try, it's just your way,",
+            "You bring that energy every day."
         ]
     },
     {
         id: 2,
-        videoKey: 'video3',
+        videoKey: 'video5',
         alt: 'Moment 2',
         poem: [
-            "Like stars that paint the midnight sky,",
-            "Your elegance will never die,",
-            "A spirit rare, a heart so gold,",
-            "Your story forever to be told."
+            "There's something different in the air,",
+            "When you show up and you're standing there,",
+            "A presence that you cannot fake,",
+            "The kind of mark that legends make."
         ]
     },
     {
         id: 3,
-        videoKey: 'video4',
+        videoKey: 'video3',
         alt: 'Moment 3',
         poem: [
-            "In laughter's light and gentle smile,",
-            "You make each moment so worthwhile,",
-            "A queen of grace, a soul so bright,",
-            "You turn the darkest day to light."
+            "Your smile hits different, that's a fact,",
+            "Good vibes only, nothing that you lack,",
+            "People notice when you're around,",
+            "That kind of glow is rarely found."
         ]
     },
     {
         id: 4,
-        videoKey: 'video5',
-        alt: 'Moment 4',
+        videoKey: 'video7',
+        alt: 'Loyal Guardian',
         poem: [
-            "Through every season, rain or shine,",
-            "Your inner beauty will define,",
-            "The way you walk, the way you glow,",
-            "A masterpiece from head to toe."
+            "A loyal guardian standing tall,",
+            "A protector watching through it all,",
+            "With watchful eyes and heart so true,",
+            "This one's always looking out for you."
         ]
     },
     {
         id: 5,
-        videoKey: 'video6',
+        videoKey: 'video4',
         alt: 'Moment 5',
         poem: [
-            "On this day, we celebrate you,",
-            "Every dream and wish come true,",
-            "May joy and love forever stay,",
-            "Happy Birthday, beautiful today."
+            "The way you move, the way you shine,",
+            "That effortless style is one of a kind,",
+            "Not everybody's got what you bring,",
+            "You make the ordinary feel like a thing."
+        ]
+    },
+    {
+        id: 6,
+        videoKey: 'video6',
+        alt: 'Moment 6',
+        poem: [
+            "Another year, another chapter new,",
+            "Birthday wishes coming through,",
+            "May this year bring you nothing but the best,",
+            "You deserve it more than all the rest."
         ]
     },
 ];
@@ -174,6 +185,11 @@ const GalleryItem: React.FC<{ item: MediaItem; index: number }> = memo(({ item, 
                         <div className="absolute top-4 right-4 text-rose-gold/5 text-6xl md:text-8xl font-playfair pointer-events-none select-none">
                             "
                         </div>
+
+                        {/* Subtle poem label */}
+                        <p className="text-center font-montserrat text-rose-gold/40 text-[8px] sm:text-[9px] uppercase tracking-[0.3em] mb-4">
+                            Poem
+                        </p>
 
                         {/* Top ornament */}
                         <div className="flex items-center justify-center gap-3 mb-6">
